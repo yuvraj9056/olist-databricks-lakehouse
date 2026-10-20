@@ -1,0 +1,75 @@
+resources:
+  jobs:
+    olist_ecommerce_incremental_pipeline:
+      name: olist_ecommerce_incremental_pipeline
+      tasks:
+        - task_key: run_bronze_ingestion
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/01_bronze_ingestion
+            source: WORKSPACE
+        - task_key: run_silver_order_items
+          depends_on:
+            - task_key: run_bronze_ingestion
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/silver/02_silver_order_items
+            source: WORKSPACE
+        - task_key: run_silver_order_payments
+          depends_on:
+            - task_key: run_bronze_ingestion
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/silver/02_silver_order_payments
+            source: WORKSPACE
+        - task_key: run_silver_order_reviews
+          depends_on:
+            - task_key: run_bronze_ingestion
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/silver/02_silver_order_reviews
+            source: WORKSPACE
+        - task_key: run_silver_orders
+          depends_on:
+            - task_key: run_bronze_ingestion
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/silver/02_silver_orders
+            source: WORKSPACE
+        - task_key: run_gold_fact_sales
+          depends_on:
+            - task_key: run_silver_orders
+            - task_key: run_silver_order_reviews
+            - task_key: run_silver_order_payments
+            - task_key: run_silver_order_items
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/gold/03_gold_fact_sales
+            source: WORKSPACE
+        - task_key: run_gold_customer_ltv
+          depends_on:
+            - task_key: run_gold_fact_sales
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/gold/03_gold_customer_ltv
+            source: WORKSPACE
+        - task_key: run_gold_daily_summary
+          depends_on:
+            - task_key: run_gold_fact_sales
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/gold/03_gold_daily_sales_summary
+            source: WORKSPACE
+        - task_key: run_gold_seller_perf
+          depends_on:
+            - task_key: run_gold_fact_sales
+          notebook_task:
+            notebook_path: /Workspace/Users/ranayuvrajsingh1111@gmail.com/Olist ecomerce
+              ETL/gold/03_gold_seller_performance
+            source: WORKSPACE
+      queue:
+        enabled: true
+      parameters:
+        - name: batch_name
+          default: batch_3
+      performance_target: PERFORMANCE_OPTIMIZED
